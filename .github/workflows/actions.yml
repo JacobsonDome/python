@@ -1,0 +1,28 @@
+name: python
+on:
+  push:
+    branches:
+      - main
+      - feature-branch
+jobs:
+  my-jobs:
+    if: github.ref == 'refs/heads/feature-branch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: dev
+        run: |
+          echo "${{secrets.PYTHONDEV }}" | docker login -u "santosch" --password-stdin
+          docker image build -t santosch/pythondev:v${{ github.run_number }} .
+          docker push santosch/pythondev:v${{ github.run_number }}
+          
+  prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: prod
+        run: |
+         echo "${{secrets.PYTHONPROD }}" | docker login -u "santosch" --password-stdin
+         docker image build -t santosch/pythonprod:v${{ github.run_number }} .
+         docker push santosch/pythonprod:v${{ github.run_number }}
